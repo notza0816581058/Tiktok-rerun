@@ -8,6 +8,32 @@
 - `createMockTransport()` คืนข้อมูลตัวอย่างและ error แบบกำหนดแน่นอน ใช้พัฒนา API/UI และทดสอบ flow
 - ทุกผลลัพธ์จาก mock มี `source: "mock"` และ `verification.status: "pending_verification"`
 - คำสั่ง add/pin/chat จาก mock มี `execution: "simulated"` ไม่มีผลกับไลฟ์จริง
+- Mock Live Stats มี `sold` สำหรับ shared `stats.updated` contract
+
+## เครื่องมือเตรียม adapter (ยังไม่เชื่อม TikTok)
+
+- `parseSanitizedCurl()` อ่านตัวอย่าง cURL ที่ลบข้อมูลลับแล้วเป็น request template; รองรับ JSON และ form body, แทนชื่อ field ที่รู้จักด้วย `<ROOM_ID>`, `<ACCOUNT_ID>`, `<CREATOR_ID>`, `<COOKIE>`, `<ACCESS_TOKEN>` หรือ `<REDACTED>` และคงสถานะ `pending_verification`
+- `substituteRequestTemplate()` เติม room/account/creator ID และ cookie ในหน่วยความจำ เพื่อใช้ตรวจ mapping; ไม่ส่ง HTTP request และผลลัพธ์ที่เติม cookie แล้วห้ามบันทึกลง log หรือ fixture
+- `redactRequestForLog()` ซ่อน URL path, query, body และค่า header ก่อนบันทึก log
+- `parseProxyConfig()` ตรวจ URL ของ HTTP/HTTPS/SOCKS5/SOCKS5H proxy โดยไม่รับ credential ใน URL; ยังไม่มี network agent หรือการเชื่อม proxy จริง
+- `nextRetryDelayMs()` คำนวณ exponential backoff แบบ pure function เฉพาะเมื่อ caller ระบุว่าเป็นงานที่ retry ได้และ idempotent; ยังไม่มีการส่ง request หรือ retry อัตโนมัติ
+
+ตัวอย่างที่ปลอดภัยสำหรับพัฒนาในเครื่อง:
+
+```ts
+import { parseSanitizedCurl, substituteRequestTemplate, redactRequestForLog } from '@live-hub/tiktok-client';
+
+const template = parseSanitizedCurl(
+  "curl 'https://example.invalid/live?room_id=<ROOM_ID>' -H 'Cookie: <COOKIE>'",
+);
+const prepared = substituteRequestTemplate(template, {
+  roomId: 'demo-room',
+  cookie: '<COOKIE>',
+});
+const safeLog = redactRequestForLog(prepared);
+```
+
+ตัว parser ไม่รัน shell/cURL และไม่ตรวจได้ว่าข้อมูลใน field ที่ไม่รู้จักเป็นข้อมูลส่วนตัวหรือไม่ จึงต้องส่งเข้า parser เฉพาะตัวอย่างที่ sanitize แล้ว ห้ามใส่ cookie, token, บัญชีลูกค้า หรือหลักฐานจริงลง source/test/repo
 
 ```ts
 import { createMockTransport, createTikTokClient } from "@live-hub/tiktok-client";

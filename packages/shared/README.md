@@ -10,20 +10,24 @@ Run `npm test -w @live-hub/shared` to compile and run the mock fixture tests.
 
 ## Event shape
 
-Every event has `schemaVersion: 1`, `eventId`, `eventType`, `occurredAt` (ISO timestamp with timezone), `source`, `accountId`, an optional `correlationId`, and a typed `payload`. Live session events also require `sessionId`. `product.searched` may be published before a live session starts, so its `sessionId` is optional.
+Every event has `schemaVersion: 1`, `eventId`, `eventType`, `occurredAt` (ISO timestamp with timezone), `source`, `accountId`, an optional `correlationId`, and a typed `payload`. Core events also carry `payload.accountId`, which must match the envelope. Events tied to an active live session require `sessionId`. `live.starting` and `product.searched` can be published before a live session exists, so their `sessionId` is optional.
 
 | Event type | Main payload |
 | --- | --- |
-| `comment.received` | `commentId`, `viewer`, `text` |
+| `live.starting` | `accountId`, optional `roomId` |
+| `live.started` | `accountId`, `roomId`, `streamStartedAt` |
+| `live.stopped` | `accountId`, `reason` |
+| `live.error` | `accountId`, structured error |
+| `comment.received` | `accountId`, `user`, `text`, `type` (`comment`, `enter`, `like`, `gift`); optional `commentId` |
 | `viewer.entered` | `viewer` |
 | `reaction.liked` | `viewer`, `count` |
 | `gift.received` | `viewer`, `giftId`, `giftName`, `quantity` |
-| `stats.updated` | normalized counts, GMV, hourly metrics, currency; optional gifts count until verified |
+| `stats.updated` | `accountId`, viewers, sold, enters, impressions, GMV, hourly metrics, currency, other normalized counts; optional gifts count until verified |
 | `product.searched` | `query`, `results`, operation status |
 | `product.added`, `product.pinned` | `productId`, operation status |
-| `chat.send.requested` | `requestId`, `text` |
-| `chat.sent` | `requestId`, optional `platformMessageId` |
-| `chat.failed` | `requestId`, structured error |
+| `chat.send.request` | `accountId`, `requestId`, `text` |
+| `chat.sent` | `accountId`, `requestId`, optional `platformMessageId` |
+| `chat.failed` | `accountId`, `requestId`, structured error |
 
 `OperationStatus` is `success`, `error`, or `pending_verification`. An `error` status requires `{ code, message }`; other statuses cannot carry an error. These payloads describe normalized internal events, not TikTok request or response bodies.
 
@@ -33,9 +37,11 @@ Every event has `schemaVersion: 1`, `eventId`, `eventType`, `occurredAt` (ISO ti
 import { createMockEvent, parseEvent } from "@live-hub/shared";
 
 const fixture = createMockEvent("comment.received", {
+  accountId: "account-1",
   commentId: "comment-1",
-  viewer: { id: "viewer-1", displayName: "Demo Viewer" },
+  user: { id: "viewer-1", displayName: "Demo Viewer" },
   text: "Hello",
+  type: "comment",
 }, { accountId: "account-1", sessionId: "session-1" });
 
 const event = parseEvent(fixture); // validate before publishing or persisting

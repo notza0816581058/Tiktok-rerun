@@ -1,5 +1,5 @@
-import { EVENT_SCHEMA_VERSION, type EventOf, type EventPayloads, type EventType } from "./types";
-import { parseEvent } from "./validation";
+import { EVENT_SCHEMA_VERSION, type EventOf, type EventPayloads, type EventType } from './types';
+import { parseEvent } from './validation';
 
 export interface MockEventOptions {
   eventId?: string;
@@ -17,14 +17,16 @@ export function createMockEvent<K extends EventType>(
   payload: EventPayloads[K],
   options: MockEventOptions = {},
 ): EventOf<K> {
+  const payloadAccountId =
+    'accountId' in payload && typeof payload.accountId === 'string' ? payload.accountId : undefined;
   const event = {
     schemaVersion: EVENT_SCHEMA_VERSION,
     eventId: options.eventId ?? `mock-event-${nextMockId++}`,
     eventType,
     occurredAt: options.occurredAt ?? new Date().toISOString(),
-    source: "mock" as const,
-    accountId: options.accountId ?? "mock-account",
-    sessionId: options.sessionId ?? "mock-session",
+    source: 'mock' as const,
+    accountId: options.accountId ?? payloadAccountId ?? 'mock-account',
+    sessionId: options.sessionId ?? 'mock-session',
     ...(options.correlationId === undefined ? {} : { correlationId: options.correlationId }),
     payload,
   };

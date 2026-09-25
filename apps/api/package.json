@@ -16,5 +16,8 @@
     "pg": "^8.16.0",
     "redis": "^5.8.0"
   },
-  "devDependencies": {"@types/node": "^22.0.0", "@types/pg": "^8.15.0"}
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0"
+  }
 }

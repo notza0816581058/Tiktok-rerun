@@ -7,8 +7,16 @@ const require = createRequire(import.meta.url);
 const { createMockEvent } = require('@live-hub/shared') as typeof import('@live-hub/shared');
 
 test('worker accepts only validated shared event envelopes', () => {
-  const valid = createMockEvent('viewer.entered', { viewer: { id: 'viewer-1', displayName: 'Demo Viewer' } });
-  assert.deepEqual(decodeEvent(JSON.stringify(valid)), { ok: true, eventId: valid.eventId, eventType: 'viewer.entered' });
+  const valid = createMockEvent('live.started', {
+    accountId: 'demo-account',
+    roomId: 'demo-room',
+    streamStartedAt: '2026-09-25T08:00:00.000Z',
+  });
+  assert.deepEqual(decodeEvent(JSON.stringify(valid)), {
+    ok: true,
+    eventId: valid.eventId,
+    eventType: 'live.started',
+  });
   assert.deepEqual(decodeEvent('{bad json'), { ok: false });
   assert.deepEqual(decodeEvent(JSON.stringify({ ...valid, schemaVersion: 999 })), { ok: false });
 });

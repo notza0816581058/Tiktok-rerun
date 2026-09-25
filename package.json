@@ -2,7 +2,10 @@
   "name": "live-hub-monorepo",
   "version": "0.2.0",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently -k -n web,api,worker -c magenta,cyan,green \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
     "dev:web": "npm run dev -w @live-hub/web",
@@ -18,9 +21,21 @@
     "start:api": "npm run start -w @live-hub/api",
     "start:worker": "npm run start -w @live-hub/worker",
     "test": "npm run test -w @live-hub/shared && npm run test -w @live-hub/tiktok-client && npm run test -w @live-hub/api && npm run test -w @live-hub/worker",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,json,css,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,json,css,yml,yaml}\"",
     "stack:up": "docker compose up --build -d",
     "stack:down": "docker compose down",
     "demo:event": "tsx scripts/publish-mock-event.ts"
   },
-  "devDependencies": {"concurrently": "^9.2.1", "typescript": "^5.9.0", "tsx": "^4.20.0"}
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.11.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.70.1"
+  }
 }

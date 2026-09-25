@@ -2,8 +2,10 @@ import Fastify from 'fastify';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { createMockEvent, validateEvent } = require('@live-hub/shared') as typeof import('@live-hub/shared');
-const { createTikTokClient, createMockTransport, mockAccountId, mockLiveSessionId } = require('@live-hub/tiktok-client') as typeof import('@live-hub/tiktok-client');
+const { createMockEvent, validateEvent } =
+  require('@live-hub/shared') as typeof import('@live-hub/shared');
+const { createTikTokClient, createMockTransport, mockAccountId, mockLiveSessionId } =
+  require('@live-hub/tiktok-client') as typeof import('@live-hub/tiktok-client');
 const mockClient = createTikTokClient(createMockTransport());
 
 export type HealthDependencies = {
@@ -19,14 +21,18 @@ export function createApp(deps: HealthDependencies) {
 
   app.get('/health/ready', async (_request, reply) => {
     const [postgres, redis, worker] = await Promise.allSettled([
-      deps.postgres(), deps.redis(), deps.worker(),
+      deps.postgres(),
+      deps.redis(),
+      deps.worker(),
     ]);
     const services = {
       postgres: postgres.status === 'fulfilled' ? 'ready' : 'unavailable',
       redis: redis.status === 'fulfilled' ? 'ready' : 'unavailable',
       worker: worker.status === 'fulfilled' && worker.value ? 'ready' : 'unavailable',
     } as const;
-    const status = Object.values(services).every(value => value === 'ready') ? 'ready' : 'degraded';
+    const status = Object.values(services).every((value) => value === 'ready')
+      ? 'ready'
+      : 'degraded';
     if (status === 'degraded') reply.status(503);
     return { status, service: 'api', dependencies: services };
   });
@@ -41,24 +47,35 @@ export function createApp(deps: HealthDependencies) {
   }));
 
   app.get('/api/v1/mock/live-stats', async () => {
-    const result = await mockClient.stats.live({ accountId: mockAccountId, liveSessionId: mockLiveSessionId });
+    const result = await mockClient.stats.live({
+      accountId: mockAccountId,
+      liveSessionId: mockLiveSessionId,
+    });
     if (!result.ok) return result;
     const stats = result.data;
-    const event = createMockEvent('stats.updated', {
-      viewers: stats.viewers,
-      enters: stats.enters,
-      likes: stats.likes,
-      comments: stats.comments,
-      impressions: stats.impressions,
-      gmv: stats.gmv,
-      currency: stats.currency,
-      gmvPerHour: stats.gmvPerHour,
-      impressionsPerHour: stats.impressionsPerHour,
-    }, { accountId: stats.accountId, sessionId: stats.liveSessionId });
+    const event = createMockEvent(
+      'stats.updated',
+      {
+        accountId: stats.accountId,
+        viewers: stats.viewers,
+        sold: stats.sold,
+        enters: stats.enters,
+        likes: stats.likes,
+        comments: stats.comments,
+        impressions: stats.impressions,
+        gmv: stats.gmv,
+        currency: stats.currency,
+        gmvPerHour: stats.gmvPerHour,
+        impressionsPerHour: stats.impressionsPerHour,
+      },
+      { accountId: stats.accountId, sessionId: stats.liveSessionId },
+    );
     return { ...result, event, contract: validateEvent(event).success ? 'valid' : 'invalid' };
   });
 
-  app.get('/api/v1/mock/products', async () => mockClient.products.search({ accountId: mockAccountId, query: 'demo' }));
+  app.get('/api/v1/mock/products', async () =>
+    mockClient.products.search({ accountId: mockAccountId, query: 'demo' }),
+  );
 
   return app;
 }

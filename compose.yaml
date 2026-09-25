@@ -5,19 +5,19 @@ services:
       POSTGRES_USER: livehub
       POSTGRES_PASSWORD: livehub_dev
       POSTGRES_DB: livehub
-    ports: ["127.0.0.1:5433:5432"]
-    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    ports: ['127.0.0.1:5433:5432']
+    volumes: ['postgres_data:/var/lib/postgresql/data']
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U livehub -d livehub"]
+      test: ['CMD-SHELL', 'pg_isready -U livehub -d livehub']
       interval: 5s
       timeout: 3s
       retries: 12
 
   redis:
     image: redis:7-alpine
-    ports: ["127.0.0.1:6380:6379"]
+    ports: ['127.0.0.1:6380:6379']
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 12
@@ -37,12 +37,18 @@ services:
       API_HOST: 0.0.0.0
       DATABASE_URL: postgresql://livehub:livehub_dev@postgres:5432/livehub
       REDIS_URL: redis://redis:6379
-    ports: ["127.0.0.1:4000:4000"]
+    ports: ['127.0.0.1:4000:4000']
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 12
@@ -55,11 +61,17 @@ services:
       APP_PASSWORD: ${APP_PASSWORD:-demo1234}
       SESSION_SECRET: ${SESSION_SECRET:-local-development-only-change-me-before-deploying}
       API_INTERNAL_URL: http://api:4000
-    ports: ["127.0.0.1:3100:3100"]
+    ports: ['127.0.0.1:3100:3100']
     depends_on:
       api: { condition: service_healthy }
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3100/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 12

@@ -1,5 +1,6 @@
-export { EVENT_SCHEMA_VERSION } from "./types";
+export { CORE_EVENT_TYPES, EVENT_SCHEMA_VERSION, EVENT_TYPES } from './types';
 export type {
+  CommentActivityType,
   ContractError,
   EventEnvelope,
   EventOf,
@@ -12,7 +13,7 @@ export type {
   ValidationIssue,
   ValidationResult,
   ViewerRef,
-} from "./types";
-export type { MockEventOptions } from "./mock";
-export { ContractValidationError, isLiveEvent, parseEvent, validateEvent } from "./validation";
-export { createMockEvent } from "./mock";
+} from './types';
+export type { MockEventOptions } from './mock';
+export { ContractValidationError, isLiveEvent, parseEvent, validateEvent } from './validation';
+export { createMockEvent } from './mock';
