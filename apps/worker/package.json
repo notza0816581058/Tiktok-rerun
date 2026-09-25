@@ -1,0 +1,14 @@
+{
+  "name": "@live-hub/worker",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "tsx --test src/heartbeat.test.ts src/events.test.ts"
+  },
+  "dependencies": {"@live-hub/shared": "0.2.0", "redis": "^5.8.0"},
+  "devDependencies": {"@types/node": "^22.0.0"}
+}

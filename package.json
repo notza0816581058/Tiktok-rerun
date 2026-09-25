@@ -1,0 +1,26 @@
+{
+  "name": "live-hub-monorepo",
+  "version": "0.2.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "concurrently -k -n web,api,worker -c magenta,cyan,green \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev:web": "npm run dev -w @live-hub/web",
+    "dev:api": "npm run dev -w @live-hub/api",
+    "dev:worker": "npm run dev -w @live-hub/worker",
+    "build": "npm run build:shared && npm run build:client && npm run build:api && npm run build:worker && npm run build:web",
+    "build:shared": "npm run build -w @live-hub/shared",
+    "build:client": "npm run build -w @live-hub/tiktok-client",
+    "build:api": "npm run build -w @live-hub/api",
+    "build:worker": "npm run build -w @live-hub/worker",
+    "build:web": "npm run build -w @live-hub/web",
+    "start:web": "npm run start -w @live-hub/web",
+    "start:api": "npm run start -w @live-hub/api",
+    "start:worker": "npm run start -w @live-hub/worker",
+    "test": "npm run test -w @live-hub/shared && npm run test -w @live-hub/tiktok-client && npm run test -w @live-hub/api && npm run test -w @live-hub/worker",
+    "stack:up": "docker compose up --build -d",
+    "stack:down": "docker compose down",
+    "demo:event": "tsx scripts/publish-mock-event.ts"
+  },
+  "devDependencies": {"concurrently": "^9.2.1", "typescript": "^5.9.0", "tsx": "^4.20.0"}
+}

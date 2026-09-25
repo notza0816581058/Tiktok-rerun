@@ -1,0 +1,20 @@
+{
+  "name": "@live-hub/api",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "tsx --test src/app.test.ts"
+  },
+  "dependencies": {
+    "@live-hub/shared": "0.2.0",
+    "@live-hub/tiktok-client": "0.2.0",
+    "fastify": "^5.6.0",
+    "pg": "^8.16.0",
+    "redis": "^5.8.0"
+  },
+  "devDependencies": {"@types/node": "^22.0.0", "@types/pg": "^8.15.0"}
+}
